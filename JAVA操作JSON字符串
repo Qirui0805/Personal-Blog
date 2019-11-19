@@ -1,0 +1,126 @@
+## JSON简介
+JSON(Javascript Object Notation)，是键值对的集合。有以下几种形式，摘自[官网](http://www.json.org/index.html)
+- **object**: an unordered key/value pairs, begins with {, end with }, key and value is separated by : , each pair is separated by ,
+- **array:** an ordered list of values. begins with [ , ends with ] .
+- **value**: there are several forms: 【string, number, object, array, true, false, null】
+对于value的几种形式就不细说了
+## JAVA中对JSON的操作
+主要针对在SpringBoot框架中的使用
+### 接收JSON对象
+- 编写与JSON对象对应的类并加上@ResponseBody或@RestController注解；或者用对应数量的String类型变量接收，并且变量的命名与JSON字段相同或者加上@RequestParam(value = "name")注解。
+#### 示例
+前端表单
+![图片](https://user-images.githubusercontent.com/37745929/68918089-c1c3f800-07a7-11ea-963d-49c29ccc5cf9.png)
+在后端编写对应的对象
+```java
+public class BatteryQueryVO {
+    String serialNumber;
+    String from;
+    String to;
+```
+在方法中添加参数
+```java
+@RestController
+@RequestMapping
+public class BatteryInfoConroller {
+    @Autowired
+    QueryService service;
+    @PostMapping("battery")
+    public String queryBattery(BatteryQueryVO batteryVO) {
+```
+### 解析JSON字符串
+请求API后返回的数据可以编写相应的对象接收（这里说的接收和上面说的表单发送的不是一回事），但是json字符串可能非常复杂，因此用String接收更好。
+
+解析JSON需要请入阿里巴巴开发的工具FastJson
+#### 引入依赖
+```xml
+<dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.5</version>
+        </dependency>
+```
+#### JSON对象的结构
+![JSON](https://user-images.githubusercontent.com/37745929/68919323-8c6dd900-07ac-11ea-9158-74d5e7fb66d7.png)
+- JSON提供了解析字符串和Object为JSONObject和将Object解析为Json字符串的方法。前者用于将访问API获取的数据进行解析，取出需要的字段；后者用于将后端的数据转化为Json字符串发送到前端
+```java
+//注意：这里的JSONObject为FastJson的对象，与其他包中的JSONObject不同
+public static final JSONObject parseObject(String text)
+//Object可以为VO, List 和 Map, 由此可知可用该方法把JSONArray和JSONObject转成字符串
+public static final String toJSONString(Object object) {
+        return toJSONString(object, new SerializerFeature[0]);
+    }
+```
+- JSONObject本质上是一个Map
+```java
+public class JSONObject extends JSON implements Map<String, Object>, Cloneable, Serializable, InvocationHandler
+```
+提供了获取Json对象元素的方法, 目前用到的有
+```java
+public JSONObject getJSONObject(String key)
+public JSONArray getJSONArray(String key)
+```
+- JSONArray本质上是List
+```java
+public class JSONArray extends JSON implements List<Object>, Cloneable, RandomAccess, Serializable
+```
+获取Json对象的方法与JSONObject一样。
+（源码暂不分析）
+#### 实例
+- SpringBoot框架的RestTemplate发送请求，以String类型获取返回数据
+- 使用`JSON`类的`parseObject(String text)`方法解析返回的String数据为JSONObject对象
+- 用JSONObject的方法获取需要的元素
+- 将获取的元素组合为Map, 用JSON.toJSONString(Object object)方法返回给前端
+```java
+        RestTemplate template = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity entity = new HttpEntity(params, headers);
+        ResponseEntity<String> res = template.exchange(url, HttpMethod.POST, entity, String.class);
+        return res.getBody();
+```
+```java
+        //获取JSONObject对象
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        //要根据获取的数据格式进行获取，先用postman请求然后分析其格式
+        JSONArray jsonArray = jsonObject.getJSONObject("hits").getJSONArray("hits");
+        //并不一定要MultiValueMap，根据需要来，这里使用它因为value都是array
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        LinkedList<String> times = new LinkedList<>();
+        LinkedList<String> batteries = new LinkedList<>();
+        for (Object object : jsonArray) {
+            JSONObject jsonObject1 = (JSONObject)object;
+            JSONObject source = jsonObject1.getJSONObject("_source");
+            times.addFirst(source.getString("@timestamp"));
+            String message = source.getString("message");
+            String battery = "";
+            int i = message.length() - 1; char c;
+            while ((c = message.charAt(i--)) != ' ') {
+                battery = c + battery;
+            }
+            batteries.addFirst(battery);
+        }
+        map.put("time", times);
+        map.put("battery", batteries);
+        System.out.println("get return jason data");
+        return map;
+```
+```java
+String s = JSON.toJSONString(service.getBatteryInfo(batteryVO));
+```
+#### 前端使用JSON数据
+主要需要注意一点，返回的是JSON字符串，因此需要转化为对象
+```javascript
+                     function (res) {
+                        myChart.hideLoading();
+                        var ob = JSON.parse(res);
+                        myChart.setOption({
+                            xAxis: {
+                                data: ob.time
+                            },
+                            series: [{
+                                name: '电量',
+                                data: ob.battery
+                            }]
+                        });
+
+```
