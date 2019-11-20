@@ -33,7 +33,7 @@ GET /index/type/document
 http://kibana.addx.live:9200/log-test-2019.10.30/_doc/aY84Gm4BvhD42qvR5sdX
 ```
 返回JSON格式的实体
-```html
+```json
 {
     "_index": "log-test-2019.10.30",
     "_type": "_doc",
@@ -73,7 +73,7 @@ http://kibana.addx.live:9200/log-test-2019.10.30/_doc
 GET http://kibana.addx.live:9200/log-test-2019.10.30/_search   OR
 GET http://kibana.addx.live:9200/log-test-2019.10.30/_doc/_search
 ```
-```html
+```json
 {
     "took": 0,
     "timed_out": false,
