@@ -140,8 +140,8 @@ _all表示所有索引
 GET /_all/tweet/_search?q=tweet:elasticsearch+tweet:mary
 ```
 基本格式是q=fieldname:value+/-fieldname:value, +表示一定满足，-表示一定不满足，数字和日期前还可以加上><
-如果不加fieldname，elastic会将所有fieldname的值都合起来组成一个新的field叫_all,然后去搜索_all这个字段，所以任一字段有value就会返回
+如果不加fieldname，elastic会将所有fieldname的值都合起来组成一个新的field叫_all,然后去搜索_all这个字段，所以任一字段有value就会返回  
 **优点**
-简单，适合命令行模式，在开发时进行一次性的查询
+简单，适合命令行模式，在开发时进行一次性的查询  
 **缺点**
-编码后很难阅读，格式很容易错
+编码后很难阅读，格式很容易错  
