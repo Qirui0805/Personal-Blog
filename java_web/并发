@@ -1,0 +1,68 @@
+## 使用多线程方法
+#### 直接创建
+- 继承`Thread`类
+```java
+public class MyThread extends Thread{
+  @Override
+  public void run() {
+    //do something
+  }
+}
+public class ThreadTest {
+  public static void main(String[] args){
+     new MyThread().start;
+     //Anonymous Inner Class
+     //new Thread() {
+     // @Override
+     // public void run(){
+     //   code..  
+     // }
+     //}.start();
+  }
+}
+```
+- 实现Runnable接口
+```java
+public class MyRunnable { 
+   public static void main(String[] args) {
+    new Thread(new Runnable(){
+      @Override
+      public void run() {
+        //do something
+      }
+    }
+   }
+}
+```
+#### 利用线程池管理
+- 给线程池传递实现了Runnable接口的任务(task), 无返回值
+```java
+public ExecutorTest {
+  public static void main(Stringp[] args) {
+    ExecutorService service = Executors.bewCachedThreadPool();
+    service.execute(new Runnable() {
+      @Override
+      public void run() {
+        //do something
+      }
+    });
+    service.shutdown();
+  }
+}
+```
+- 给线程池传递Callable接口，有返回值
+```java
+public ExecutorTest2 {
+  pubic static void main(String[] args){
+    ExecutorService servie = Executors.newCachedThreadPool();
+    Object result = service.submit(new Callable<Object> () {
+      @Override
+      public Object call() throws Exception{
+        //do somethin
+        return object;
+      }
+    });
+    result.get();//wait until return
+  }
+}
+```
