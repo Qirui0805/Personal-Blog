@@ -145,3 +145,22 @@ GET /_all/tweet/_search?q=tweet:elasticsearch+tweet:mary
 简单，适合命令行模式，在开发时进行一次性的查询  
 **缺点**
 编码后很难阅读，格式很容易错  
+#### RequestSearch源码分析
+构造搜索内容后调用`RestHighLevelClient.search`,所需参数为`SearchRequest`和`RequestOptions`
+```java
+SearchResponse response = null;
+        try {
+            response = client.search(searchRequest,RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+下面进入客户端源码
+```java
+class RestHighLevelClient
+public final SearchResponse search(SearchRequest searchRequest, RequestOptions options) throws IOException {
+        return (SearchResponse)this.performRequestAndParseEntity((ActionRequest)searchRequest, (r) -> {
+            return RequestConverters.search(r, "_search");
+        }, options, SearchResponse::fromXContent, Collections.emptySet());
+    }
+```
