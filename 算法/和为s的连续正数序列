@@ -1,0 +1,42 @@
+#### 题目描述
+找出所有和为S的连续正数序列（至少两个数）
+#### 题目类型
+滑动窗口
+#### 解题思路
+- 初始化窗口，头为第二个数，尾为第一个数
+- 算出当前窗口的和，与target比较，如果相等，写入结果集；如果大，尾向前一步；如果小，头向前一步
+- 如果尾不小于头了，结束，否则回到第二步
+
+数学上没想出来怎么求停止的点。最简单粗暴的思路是尾动到最后一个点，但显然可以优化；我想到的第二个思路是当头大于target/2 + 1时就可以停了；其实换句话就是当大小为2的窗口和大于target时，但不能这么啰嗦的写，还可以换种表述方法就是当尾不小于头了，因为只有当大小为2的窗口还大于target时才会出现这样的情况
+#### 实现代码
+```java
+public class Solution {
+    public ArrayList<ArrayList<Integer> > FindContinuousSequence(int sum) {
+        ArrayList<ArrayList<Integer> > res = new ArrayList<>();
+        int head = 1;
+        int tail = 2;
+        int currSum = 3;
+        while (head < tail) {
+            currSum = getSum(head, tail);
+            if (currSum == sum) {
+                ArrayList<Integer> list = new ArrayList<>();
+                for (int i = head; i <= tail; i++) {
+                    list.add(i);
+                }
+                res.add(list);
+                head++; tail++;
+            }
+            else if (currSum < sum) {
+                tail++;
+            } else {
+                head++;
+            }
+        }
+        return res;
+    }
+    
+    private int getSum(int head, int tail) {
+        return (head + tail) * (tail - head + 1) / 2;
+    }
+}
+```
