@@ -40,4 +40,22 @@ public class Solution{
 }
 ``` 
 - 双指针
-可以进一步改进的原因是进行很多没有必要的计算，如【2，4，6，7，8】这个数组，target为8，2找到6发现大了之后停止，4就不需要考虑6之后
+可以进一步改进的是进行了很多没有必要的计算，如【2，4，5，6，7，8】这个数组，target为8，2找到6发现大了之后停止，4就不需要考虑6之后所有的数了，因为一定比target大，所以从5开始往前找，找到小的停止。这就已经有双指针的意思了，2也不需要从前往后找，直接从后往前找，如果小了就停，往前走一步，重复这个步骤。由此经过几步优化从暴力解成为O(N2)的解。优化的关键有：和相同的两个数，差大的乘积更小，所以从头开始找，找到了就可以返回；不进行重复计算。
+```java
+public class Solution {
+    public ArrayList<Integer>  FindNumbersWithSum(int [] array,int sum) {
+        int l = 0;
+        int r = array.length - 1;
+        while (l < r) {
+            int s = array[l] + array[r];
+            if (s == sum) {
+                return new ArrayList<Integer>(Arrays.asList(array[l], array[r]));
+            } else if (s > sum) {
+                r--;
+            } else {
+                l++;
+            }
+        }
+        return new ArrayList<Integer>();
+    }
+```
