@@ -8,4 +8,5 @@
   [并发控制](https://github.com/Qirui0805/Personal-Blog/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6.md)  
   [索引优化](https://github.com/Qirui0805/Personal-Blog/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96.md)
 #### 并发  
-  [AQS源码解析](https://github.com/Qirui0805/Personal-Blog/blob/master/%E5%B9%B6%E5%8F%91/Abstract%20Queue%20Synchronizer%E6%BA%90%E7%A0%81.md)
+  [AQS源码解析](https://github.com/Qirui0805/Personal-Blog/blob/master/%E5%B9%B6%E5%8F%91/Abstract%20Queue%20Synchronizer%E6%BA%90%E7%A0%81.md)  
+  [Reentrant Lock源码解析](https://github.com/Qirui0805/Personal-Blog/blob/master/%E5%B9%B6%E5%8F%91/Reentrant%20Lock.md)
