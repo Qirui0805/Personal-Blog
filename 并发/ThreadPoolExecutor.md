@@ -4,23 +4,23 @@
 3. 提高线程的可管理性。线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一的分配、调优和监控
 
 ### 线程池的底层类与接口
-ExecutorService 是真正的线程池接口
-Executor 是线程池的顶级接口，只是一个执行线程的工具，只提供一个execute(Runnable command)的方法，真正的线程池接口是ExecutorService
-Executors 是静态工厂类，生产各种类型线程池
-AbstractExecutorService 实现了ExecutorService接口，实现了其中大部分的方法（有没有实现的方法，所以被声明为Abstract）
-ThreadPoolExecutor，继承了AbstractExecutorService，是ExecutorService的默认实现
+- ExecutorService 是真正的线程池接口
+- Executor 是线程池的顶级接口，只是一个执行线程的工具，只提供一个execute(Runnable command)的方法，真正的线程池接口是ExecutorService
+- Executors 是静态工厂类，生产各种类型线程池
+- AbstractExecutorService 实现了ExecutorService接口，实现了其中大部分的方法（有没有实现的方法，所以被声明为Abstract）
+- ThreadPoolExecutor，继承了AbstractExecutorService，是ExecutorService的默认实现
 
 ### 线程池种类
-• CachedThreadPool：一个任务创建一个线程；
-• FixedThreadPool：所有任务只能使用固定大小的线程；
-• SingleThreadExecutor：相当于大小为 1 的 FixedThreadPool。
+• CachedThreadPool：一个任务创建一个线程；  
+• FixedThreadPool：所有任务只能使用固定大小的线程；  
+• SingleThreadExecutor：相当于大小为 1 的 FixedThreadPool。  
 
-本质上都是ThreadPoolExecutor, 由Executors下的工厂方法构造：
-○ newFixedThreadPool：返回固定长度的线程池，线程池中的线程数量是固定的。
-○ newCacheThreadPool：该方法返回一个根据实际情况来进行调整线程数量的线程池，空余线程存活时间是60s
-○ newSingleThreadExecutor：该方法返回一个只有一个线程的线程池。
-○ newSingleThreadScheduledExecutor：该方法返回一个SchemeExecutorService对象，线程池大小为1，SchemeExecutorService接口在ThreadPoolExecutor类和 ExecutorService接口之上的扩展，在给定时间执行某任务。
-○ newSchemeThreadPool：该方法返回一个SchemeExecutorService对象，可指定线程池线程数量。
+本质上都是ThreadPoolExecutor, 由Executors下的工厂方法构造：  
+○ newFixedThreadPool：返回固定长度的线程池，线程池中的线程数量是固定的。  
+○ newCacheThreadPool：该方法返回一个根据实际情况来进行调整线程数量的线程池，空余线程存活时间是60s  
+○ newSingleThreadExecutor：该方法返回一个只有一个线程的线程池。  
+○ newSingleThreadScheduledExecutor：该方法返回一个SchemeExecutorService对象，线程池大小为1，SchemeExecutorService接口在 ThreadPoolExecutor类和 ExecutorService接口之上的扩展，在给定时间执行某任务。  
+○ newSchemeThreadPool：该方法返回一个SchemeExecutorService对象，可指定线程池线程数量。  
 	
 ## ThreadPoolExecutor源码解析
 ### ThreadPoolExecutor线程池类参数详解
