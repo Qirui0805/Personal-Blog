@@ -100,6 +100,219 @@ e. TERMINATED，终止状态，线程池已销毁
 	它们的流转关系如下： 
   <img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/%E6%B5%81%E7%A8%8B.png" width="300">
 ### 任务执行流程
-<img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E9%80%BB%E8%BE%91.png" width="600">
+<img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E9%80%BB%E8%BE%91.png" width="600">     
+
+### execute(Runnable command)
+- 如果有效线程数低于``corePoolSize``, addWork()执行核心线程
+- 否则，尝试加入阻塞队列，阻塞队列未满且double check线程池状态没问题则加入成功
+- 否则，尝试直接addworker作为非核心线程执行
+```java
+public void execute(Runnable command) {
+        if (command == null)
+            throw new NullPointerException();
+        /*
+         * 1. If fewer than corePoolSize threads are running, try to
+         * start a new thread with the given command as its first
+         * task. 
+         */
+        int c = ctl.get();
+        if (workerCountOf(c) < corePoolSize) {
+            if (addWorker(command, true))
+                return;
+            c = ctl.get();
+        }
+        /*
+         * 2. If a task can be successfully queued, we
+         * recheck state and if necessary roll back the enqueuing if
+         * stopped, or start a new thread if there are none.
+         */
+        if (isRunning(c) && workQueue.offer(command)) {
+            int recheck = ctl.get();
+            if (! isRunning(recheck) && remove(command))
+                reject(command);
+            else if (workerCountOf(recheck) == 0)
+                addWorker(null, false);
+        }
+        /*
+         * 3. If we cannot queue task, then we try to add a new
+         * thread.  If it fails, we know we are shut down or saturated
+         * and so reject the task.
+         */
+        else if (!addWorker(command, false))
+            reject(command);
+    }
+```
+### addWorker(Runnable command, boolean core)
+#### 判断可否执行
+- 检查线程池状态
+1. 线程池状态不能为(stop, tidying, terminated)
+2. 线程池状态为shutdown时，传入的任务必须为空且workqueue不能为空（见shutdown的含义）
+
+- 检查线程池线程数量
+1. 如果以核心线程执行任务，``workCountOf(ctl)``必须小于``corepoolsize``
+2. 如果以非核心线程执行任务，``workCountOf(ctl)``必须小于``maximumpoolsize``
+
+- 尝试通过CAS操作改变有效线程数量
+如果失败则重新回到第一步
+```java
+retry:
+for (;;) {
+    int c = ctl.get();
+    int rs = runStateOf(c);
+
+    // First
+    if (rs >= SHUTDOWN &&
+        ! (rs == SHUTDOWN &&
+           firstTask == null &&
+           ! workQueue.isEmpty()))
+        return false;
+    for (;;) {
+        int wc = workerCountOf(c);
+        //Second
+        if (wc >= CAPACITY ||
+            wc >= (core ? corePoolSize : maximumPoolSize))
+            return false;
+        //Third
+        if (compareAndIncrementWorkerCount(c))
+            break retry;
+        c = ctl.get();  // Re-read ctl
+        if (runStateOf(c) != rs)
+            continue retry;
+        // else CAS failed due to workerCount change; retry inner loop
+    }
+}
+```
+
+#### 执行任务
+- 构建Worker对象
+- 检查线程池状态， 
+- t.start()
+```java
+boolean workerStarted = false;
+boolean workerAdded = false;
+Worker w = null;
+try {
+    w = new Worker(firstTask);
+    final Thread t = w.thread;
+    if (t != null) {
+        final ReentrantLock mainLock = this.mainLock;
+        //workers的数据结构为HashSet，非线程安全，操作workers需要加同步锁
+        mainLock.lock();
+        try {
+            int rs = runStateOf(ctl.get());
+            if (rs < SHUTDOWN ||
+                (rs == SHUTDOWN && firstTask == null)) {
+                if (t.isAlive()) // precheck that t is startable
+                    throw new IllegalThreadStateException();
+                workers.add(w);
+                int s = workers.size();
+                if (s > largestPoolSize)
+                    largestPoolSize = s;
+                workerAdded = true;
+            }
+        } finally {
+            mainLock.unlock();
+        }
+        if (workerAdded) {
+            t.start();
+            workerStarted = true;
+        }
+    }
+} finally {
+    if (! workerStarted)
+        addWorkerFailed(w);
+}
+return workerStarted;
+```
+### runWorker(Worker w)
+- 获取任务
+- 执行任务
+```java
+final void runWorker(Worker w) {
+    Thread wt = Thread.currentThread();
+    Runnable task = w.firstTask;
+    w.firstTask = null;
+    w.unlock(); // allow interrupts
+    boolean completedAbruptly = true;
+    try {
+        //传入新任务或从workqueue中获取
+        while (task != null || (task = getTask()) != null) {
+            w.lock();
+            if ((runStateAtLeast(ctl.get(), STOP) ||
+                 (Thread.interrupted() &&
+                  runStateAtLeast(ctl.get(), STOP))) &&
+                !wt.isInterrupted())
+                wt.interrupt();
+            try {
+                beforeExecute(wt, task);
+                Throwable thrown = null;
+                try {
+                    task.run();
+                } catch (RuntimeException x) {
+                    thrown = x; throw x;
+                } catch (Error x) {
+                    thrown = x; throw x;
+                } catch (Throwable x) {
+                    thrown = x; throw new Error(x);
+                } finally {
+                    afterExecute(task, thrown);
+                }
+            } finally {
+                task = null;
+                w.completedTasks++;
+                w.unlock();
+            }
+        }
+        completedAbruptly = false;
+    } finally {
+        processWorkerExit(w, completedAbruptly);
+    }
+}
+
+```
+
+### getTask()
+负责获取任务，对于不同的情况有不同的获取策略
+```java
+private Runnable getTask() {
+    boolean timedOut = false; // Did the last poll() time out?
+    for (;;) {
+        int c = ctl.get();
+        int rs = runStateOf(c);
+
+        // Check if queue empty only if necessary.
+        if (rs >= SHUTDOWN && (rs >= STOP || workQueue.isEmpty())) {
+            decrementWorkerCount();
+            return null;
+        }
+
+        int wc = workerCountOf(c);
+
+        // Are workers subject to culling?
+        boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
+
+        if ((wc > maximumPoolSize || (timed && timedOut))
+            && (wc > 1 || workQueue.isEmpty())) {
+            if (compareAndDecrementWorkerCount(c))
+                return null;
+            continue;
+        }
+        //如果是核心线程且允许超时（allowCoreThreadTimeOut)或者非核心线程，则超时获取task，否则阻塞获取
+        try {
+            Runnable r = timed ?
+                workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :
+                workQueue.take();
+            if (r != null)
+                return r;
+            timedOut = true;
+        } catch (InterruptedException retry) {
+            timedOut = false;
+        }
+    }
+}
+```
+
+
+
 
 	
