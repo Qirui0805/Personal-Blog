@@ -100,7 +100,7 @@ e. TERMINATED，终止状态，线程池已销毁
 	它们的流转关系如下： 
   <img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/%E6%B5%81%E7%A8%8B.png" width="300">
 ### 任务执行流程
-<img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/%E7%BA%BF%E7%A8%8B%E6%B1%A0%E9%80%BB%E8%BE%91.png" width="600">     
+<img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/execute.png" width="600">     
 
 ### execute(Runnable command)
 - 如果有效线程数低于``corePoolSize``, addWork()执行核心线程
