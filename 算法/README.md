@@ -5,7 +5,7 @@
 - [快慢指针](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88.md)  
 - [消除间隔](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/%E6%B6%88%E9%99%A4%E9%97%B4%E9%9A%94.md)  
 - 循环排序(Cyclic Sort)
-- BFS
+- [BFS](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/BFS.md)
 - DFS
 - 二分查找变型（Modified Binary Search）
 - Top K Elements
