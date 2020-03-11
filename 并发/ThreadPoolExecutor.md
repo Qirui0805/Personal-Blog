@@ -335,7 +335,7 @@ execute的三种情况
 #### 线程储存在哪里
 Worker对象与线程一一对应，Worker存在名为workers的HashSet中。
 #### 线程池如何重复使用线程
-线程在Worker初始化时被创建，并作为在Worker的field，Worker本身作为线程的初始化参数，创建成功后直接在addWorker中调用``t.start()``方法启动线程，然后运行Worker的``run()``方法, 这个方法调用``ThreadPoolExecutor``的``runWorker(Worker)``方法，这个方法会先运行``Worker``本身的task，然后去调用``getTask()``方法去``workQueue``取任务，线程的重复使用就体现在这个方法中，当前线程数小于核心线程数上限而且没有设置超时时机的话就用``take()``方法去阻塞获取任务，否则用``poll(keepAliveTime)``方法。说明线程池最多保持数量上限为``corePoolSize``的线程一直处于存活状态，其他线程经过``keepAliveTime``后
+线程在Worker初始化时被创建，并作为在Worker的field，Worker本身作为线程的初始化参数，创建成功后直接在addWorker中调用``t.start()``方法启动线程，然后运行Worker的``run()``方法, 这个方法调用``ThreadPoolExecutor``的``runWorker(Worker)``方法，这个方法会先运行``Worker``本身的task，然后去调用``getTask()``方法去``workQueue``取任务，线程的重复使用就体现在这个方法中，当前线程数小于核心线程数上限而且没有设置超时时机的话就用``take()``方法去阻塞获取任务，否则用``poll(keepAliveTime)``方法。说明线程池最多保持数量上限为``corePoolSize``的线程一直处于存活状态，其他线程经过``keepAliveTime``后如果没有取到任务就将线程销毁。
 <img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/Thread%20in%20Pool.png" width = "800">
 
 ## BlockingQueue
