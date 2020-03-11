@@ -104,7 +104,7 @@ e. TERMINATED，终止状态，线程池已销毁
 
 ### execute(Runnable command)
 - 如果有效线程数低于``corePoolSize``, addWork()执行核心线程
-- 否则，尝试加入阻塞队列，阻塞队列未满且double check线程池状态没问题则加入成功
+- 否则，尝试加入阻塞队列，阻塞队列未满且double check线程池状态没问题则加入成功。只有当线程池里没有线程时才新建线程，否则等待现有的线程去队列里取任务
 - 否则，尝试直接addworker作为非核心线程执行
 ```java
 public void execute(Runnable command) {
@@ -130,6 +130,7 @@ public void execute(Runnable command) {
             int recheck = ctl.get();
             if (! isRunning(recheck) && remove(command))
                 reject(command);
+	    //如果线程池里没有线程了，必须创建一个线程去执行任务
             else if (workerCountOf(recheck) == 0)
                 addWorker(null, false);
         }
@@ -142,7 +143,7 @@ public void execute(Runnable command) {
             reject(command);
     }
 ```
-### addWorker(Runnable command, boolean core)
+### addWorker(Runnable firstTask, boolean core)
 #### 判断可否执行
 - 检查线程池状态
 1. 线程池状态不能为(stop, tidying, terminated)
@@ -200,6 +201,7 @@ try {
         mainLock.lock();
         try {
             int rs = runStateOf(ctl.get());
+	    //RUNNING状态自然不用说，如果时SHUTDOWN状态则要求传入的任务是null,因为该状态下不能再添加新的任务了，但可以新建一个线程去执行队列中的任务 
             if (rs < SHUTDOWN ||
                 (rs == SHUTDOWN && firstTask == null)) {
                 if (t.isAlive()) // precheck that t is startable
@@ -224,6 +226,20 @@ try {
 }
 return workerStarted;
 ```
+### Worker
+Worker 实现Runnable接口，持有一个Thread对象，初始化时用Worker自身传给``thread``，因此在``addWorker``中``t.start()``最终跑的是Worker里的run。
+```java
+Worker(Runnable firstTask) {
+    setState(-1); // inhibit interrupts until runWorker
+    this.firstTask = firstTask;
+    this.thread = getThreadFactory().newThread(this);
+}
+
+/** Delegates main run loop to outer runWorker  */
+public void run() {
+    runWorker(this);
+}
+```
 ### runWorker(Worker w)
 - 获取任务
 - 执行任务
@@ -237,6 +253,7 @@ final void runWorker(Worker w) {
     try {
         //传入新任务或从workqueue中获取
         while (task != null || (task = getTask()) != null) {
+	    //加锁为了防止其他线程调用``shutdown``方法中断正在运行的线程	
             w.lock();
             if ((runStateAtLeast(ctl.get(), STOP) ||
                  (Thread.interrupted() &&
@@ -311,6 +328,48 @@ private Runnable getTask() {
     }
 }
 ```
+
+### 线程池总结
+#### 线程的创建时机
+execute的三种情况
+#### 线程储存在哪里
+Worker对象与线程一一对应，Worker存在名为workers的HashSet中。
+#### 线程池如何重复使用线程
+线程在Worker初始化时被创建，并作为在Worker的field，Worker本身作为线程的初始化参数，创建成功后直接在addWorker中调用``t.start()``方法启动线程，然后运行Worker的``run()``方法, 这个方法调用``ThreadPoolExecutor``的``runWorker(Worker)``方法，这个方法会先运行``Worker``本身的task，然后去调用``getTask()``方法去``workQueue``取任务，线程的重复使用就体现在这个方法中，当前线程数小于核心线程数上限而且没有设置超时时机的话就用``take()``方法去阻塞获取任务，否则用``poll(keepAliveTime)``方法。说明线程池最多保持数量上限为``corePoolSize``的线程一直处于存活状态，其他线程经过``keepAliveTime``后
+<img src="https://github.com/Qirui0805/Personal-Blog/blob/master/image/Thread%20in%20Pool.png" width = "800">
+
+## BlockingQueue
+代表一个线程安全的队列，提供向队列中添加和取出元素的方法。常用于生产者消费者模型中。
+有四对加取和检查元素的方法：   
+
+- Throw Exception
+add(e), remove()，element()
+- Value (没有则返回null)
+offer(e), poll(), peek()
+- Block
+put(e), take(), none
+- Time out
+offer(e, time), poll(time), peek(time)
+如果没有规定容量，则为Integer.MAX_VALUE
+## SynchronousQueue   
+
+- 每次添加元素的操作都要等待其他线程相应的从队列中取出元素的操作
+- 不能存储元素, 因此peek()为null
+- 有公平和非公平两种方式，内部分别通过``TransferQueue``和``TransferStack``实现
+
+## LinkedBlockingQueue
+- 处理元素的顺序为FIFO。添加元素在尾部，取出元素在头部
+- 构造时若传入容量则有届，没有传入则无界
+
+#### 如何保证线程安全
+- putlock, takelock。添加取出操作使用不同的锁，remove操作要同时加两把锁。
+## 
+
+
+
+
+
+
 
 
 
