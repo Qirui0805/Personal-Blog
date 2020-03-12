@@ -9,5 +9,5 @@
 - [DFS](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/DFS.md)  
 - [二分查找变型](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE.md)  
 - [Top K Elements](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/Top%20K.md)  
-- 动态规划（Dynamic Programming)
+- [动态规划](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.md)
 
