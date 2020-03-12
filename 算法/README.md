@@ -7,6 +7,6 @@
 - 循环排序(Cyclic Sort)
 - [BFS](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/BFS.md)
 - [DFS](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/DFS.md)  
-- 二分查找变型（Modified Binary Search）
+- [二分查找变型](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE.md)  
 - Top K Elements
 - 动态规划（Dynamic Programming)
