@@ -6,7 +6,7 @@
 - [消除间隔](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/%E6%B6%88%E9%99%A4%E9%97%B4%E9%9A%94.md)  
 - 循环排序(Cyclic Sort)
 - [BFS](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/BFS.md)
-- DFS
+- [DFS](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/DFS.md)  
 - 二分查找变型（Modified Binary Search）
 - Top K Elements
 - 动态规划（Dynamic Programming)
