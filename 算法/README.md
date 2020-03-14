@@ -12,4 +12,5 @@
 - [动态规划](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92.md)
 
 
-- [Matrix](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/Matrix.md)
+- [Matrix](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/Matrix.md)  
+- [Array](https://github.com/Qirui0805/Personal-Blog/blob/master/%E7%AE%97%E6%B3%95/Arrays.md)  
