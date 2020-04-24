@@ -5,8 +5,8 @@
 	 * [迭代时删除](#迭代时删除)
 	 * [java list循环中删除元素的坑](#java-list循环中删除元素的坑)
     	 * [Fail-Fast](#fail-fast)
-* [Vector](#vector)
-    	 * [构造函数](#构造函数)
+* [Vector](#vector)  
+	* [构造函数](#构造函数)
 	 * [添加](#添加)
 	 * [扩容](#扩容)
 * [CopyOnWriteArrayList](#copyonwritearraylist)
@@ -285,13 +285,13 @@ List<String> list = new CopyOnWriteArrayList<>();
 	
 ## CopyOnWriteArrayList
 线程安全的ArrayList
-
-### 保证安全
-### 读写分离
+### 保证线程安全
+在更改数组的操作中synchronized上锁，如add, set, remove。防止并发写入时数据丢失。
+数组用volatile修饰，保证setArray操作可见性
+### 读写分离及弱一致性
 		
-- 写操作在一个复制的数组上进行，读操作还是在原始数组中进行，读写分离，互不影响。
-- 写操作需要加锁，防止并发写入时导致写入数据丢失。
-- 写操作结束之后需要把原始数组指向新的复制数组。因此也没有扩容操作。
+更改数组的操作在一个复制的数组上进行，读操作还是在原始数组中进行，读写分离，互不影响。同时也导致了读写弱一致性。
+
 ```java
 public boolean add(E e) {
     final ReentrantLock lock = this.lock;
