@@ -10,8 +10,8 @@
 	 * [添加](#添加)
 	 * [扩容](#扩容)
 * [CopyOnWriteArrayList](#copyonwritearraylist)
-	 * [保证安全](#保证安全)
-	 * [读写分离](#读写分离)
+	 * [保证线程安全](#保证线程安全)
+	 * [读写分离及弱一致性](#读写分离及弱一致性)
 	 * [适用场景](#适用场景)
 * [LinkedList](#linkedlist)
  	 * [与 ArrayList 的比较](#与-arraylist-的比较)
@@ -198,13 +198,10 @@ private class Itr implementsIterator<E>{
 	}
 ```
 ## Vector
-``ArrayList``和``Vector``干的事差不多，实现思路不一样，绝对是两个人写的。
-与``ArrayList``相似与区别：
-			1. Vector是线程安全的集合类，ArrayList并不是线程安全的类。Vector类对集合的元素操作时都加了synchronized，保证线程安全。因此开销就比 ArrayList 要大，访问速度更慢。最好使用 ArrayList 而不是 Vector，因为同步操作完全可以由程序员自己来控制；
-			2. Vector与ArrayList本质上都是一个Object[] 数组，ArrayList提供了size属性，Vector提供了elementCount属性，他们的作用是记录集合内有效元素的个数。与我们平常调用的arrayList.size()和vector.size()一样返回的集合内有效元素的个数。
-			3. Vector与ArrayList的扩容并不一样，Vector默认扩容是增长一倍的容量，Arraylist是增长50%的容量。
-			4. Vector与ArrayList的remove,add(index,obj)方法都会导致内部数组进行数据拷贝的操作，这样在大数据量时，可能会影响效率。
-			5. Vector与ArrayList的add(obj)方法，如果新增的有效元素个数超过数组本身的长度，都会导致数组进行扩容。
+- Vector与ArrayList本质上都是一个Object[] 数组，
+- Vector是线程安全的集合类，ArrayList并不是线程安全的类。Vector类对集合的元素操作时都加了synchronized，保证线程安全。因此开销就比 ArrayList 要大，访问速度更慢。
+- Vector与ArrayList的扩容并不一样，Vector默认扩容是增长一倍的容量，Arraylist是增长50%的容量。
+			
 ```java
 		public class Vector<E> extendsAbstractList<E> implements List<E>,RandomAccess,Cloneable,java.io.Serializable
 		
