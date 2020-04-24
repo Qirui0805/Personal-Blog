@@ -267,23 +267,9 @@ List<String> list = new CopyOnWriteArrayList<>();
 ```
 	
 ## CopyOnWriteArrayList
-又是另一个人写的，没有size字段，也就不能在构造时设定大小，只有默认构造函数和以collector为参数的构造函数，
-```java
-private transient volatile Object[] array;
+线程安全的ArrayList
 
-public CopyOnWriteArrayList(Collection<?extendsE> c){
-	Object[] elements;
-	if(c.getClass()==CopyOnWriteArrayList.class)
-		elements=((CopyOnWriteArrayList<?>)c).getArray();
-	else{
-		elements=c.toArray();
-		//c.toArray might(incorrectly)not return Object[](see6260652)
-		if(elements.getClass()!=Object[].class)
-		elements=Arrays.copyOf(elements,elements.length,Object[].class);
-	}
-	setArray(elements);
-}
-```
+### 保证安全
 ### 读写分离
 		
 - 写操作在一个复制的数组上进行，读操作还是在原始数组中进行，读写分离，互不影响。
