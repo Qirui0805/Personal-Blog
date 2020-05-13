@@ -114,4 +114,5 @@ protected final boolean tryAcquire(int acquires) {
         }
 ```
 ### 回答问题
-#### 非公平     
+#### 非公平锁和公平锁如何实现
+非公平锁：无论同步队列中是否有线程在等待，会直接尝试
