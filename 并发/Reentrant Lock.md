@@ -1,3 +1,6 @@
+### 问题
+- 公平锁和非公平锁是如何实现的
+- 如何获取锁，如何重入
 ### 简介
 • 称为可重入锁，功能基于CAS和AQS的独占模式实现
 • 有公平锁和非公平锁两种策略
@@ -110,3 +113,5 @@ protected final boolean tryAcquire(int acquires) {
             return false;
         }
 ```
+### 回答问题
+#### 非公平     
